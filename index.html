@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HenVeronime - Anime Streaming</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+      
+      :root {
+        --brand-blue: #3b82f6;
+        --brand-pink: #ec4899;
+        --brand-yellow: #facc15;
+      }
+
+      body {
+        font-family: 'Patrick Hand', cursive;
+        background-color: #ffffff;
+        background-image: 
+          /* Doodles Pattern (Hearts, Stars, Scribbles) */
+          url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50l5 10 10 2-8 7 2 10-9-5-9 5 2-10-8-7 10-2z' fill='%233b82f6' fill-opacity='0.12' /%3E%3Cpath d='M300 80c-5-5-12-5-17 0-5 5-5 12 0 17l17 17 17-17c5-5 5-12 0-17-5-5-12-5-17 0z' fill='%23ec4899' fill-opacity='0.12' /%3E%3Cpath d='M100 320q15-20 30 0t30-20 30 0' stroke='%233b82f6' stroke-width='2' fill='none' stroke-opacity='0.12' /%3E%3Cpath d='M320 250l10 10m0-10l-10 10' stroke='%23ec4899' stroke-width='3' stroke-linecap='round' stroke-opacity='0.12' /%3E%3Cpath d='M200 150c10-10 20 10 30 0s20 10 30 0' stroke='%23ec4899' stroke-width='2' fill='none' stroke-opacity='0.12' /%3E%3Ccircle cx='80' cy='220' r='6' fill='%233b82f6' fill-opacity='0.1' /%3E%3C/svg%3E"),
+          /* Grid Paper Pattern */
+          linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        background-size: 400px 400px, 30px 30px;
+        background-attachment: fixed;
+        color: #111827;
+        overflow-x: hidden;
+      }
+
+      /* Doodle Animations */
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-5px) rotate(5deg); }
+      }
+      .animate-doodle {
+        animation: float 3s ease-in-out infinite;
+      }
+      .animate-doodle-slow {
+        animation: float 4s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(2deg); }
+      }
+      @keyframes shine {
+        0% { transform: translateX(-100%) skewX(-15deg); }
+        50%, 100% { transform: translateX(200%) skewX(-15deg); }
+      }
+      .animate-shine {
+        animation: shine 3s infinite;
+      }
+      .animate-floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes splash-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      .animate-splash {
+        animation: splash-pulse 2s ease-in-out infinite;
+      }
+
+      .sketch-border {
+        border: 4px solid black;
+        border-radius: 1rem;
+        box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        background: white;
+      }
+
+      .sketch-border:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 1);
+      }
+
+      .sketch-button, button, a {
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      }
+
+      .sketch-button:active, a:active, button:active {
+        transform: scale(0.92) translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+      }
+
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--brand-blue);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      .loading-shimmer {
+        background: linear-gradient(90deg, #f3f3f3 25%, #e5e7eb 50%, #f3f3f3 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      .loading-shimmer {
+        background: linear-gradient(90deg, #f3f3f3 25%, #e5e7eb 50%, #f3f3f3 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+
+      @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.8) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
+      .modal-animate {
+        animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      .torn-paper {
+        clip-path: polygon(
+          0% 2%, 5% 0%, 12% 3%, 18% 0%, 25% 4%, 30% 0%, 38% 3%, 45% 0%, 52% 4%, 59% 0%, 67% 3%, 75% 0%, 82% 4%, 90% 0%, 96% 3%, 100% 0%, 
+          100% 100%, 95% 97%, 88% 100%, 80% 96%, 72% 100%, 65% 97%, 58% 100%, 50% 96%, 42% 100%, 35% 97%, 28% 100%, 20% 96%, 12% 100%, 5% 97%, 0% 100%
+        );
+      }
+
+      .hidden { display: none; }
+      
+      .sidebar-transition {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Mascot Animations */
+      @keyframes mascot-bounce {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-8px) scale(0.98) rotate(2deg); }
+      }
+      @keyframes bubble-pop {
+        0% { transform: scale(0) translate(20px, 20px); opacity: 0; }
+        80% { transform: scale(1.1) translate(-5px, -5px); opacity: 1; }
+        100% { transform: scale(1) translate(0, 0); opacity: 1; }
+      }
+      @keyframes tail-wag-mascot {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(15deg); }
+      }
+      .mascot-container {
+        animation: mascot-bounce 3s ease-in-out infinite;
+      }
+      .mascot-tail {
+        transform-origin: 6px 12px;
+        animation: tail-wag-mascot 0.8s ease-in-out infinite;
+      }
+      .speech-bubble-pop {
+        animation: bubble-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        transform-origin: bottom right;
+      }
+
+      /* Custom Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 10px;
+        border: 2px solid white;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #d1d5db;
+      }
+
+      /* Cat Running Animation */
+      @keyframes cat-bounce {
+        0%, 100% { transform: translateY(0) rotate(-2deg); }
+        50% { transform: translateY(-12px) rotate(5deg); }
+      }
+      @keyframes tail-wag {
+        0%, 100% { transform: rotate(-10deg); }
+        50% { transform: rotate(20deg); }
+      }
+      .cat-doodle {
+        animation: cat-bounce 0.5s ease-in-out infinite;
+      }
+      .cat-tail {
+        transform-origin: 6px 12px;
+        animation: tail-wag 0.3s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="pb-32">
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
+      <div class="text-center animate-splash">
+        <div class="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-8">
+          <div class="absolute inset-0 bg-[#ec4899] border-4 border-black rounded-2xl rotate-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"></div>
+          <div class="absolute inset-0 bg-[#3b82f6] border-4 border-black rounded-2xl translate-x-3 translate-y-3 flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <span class="text-white font-black text-6xl md:text-7xl drop-shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">HV</span>
+          </div>
+          <!-- Tiny accent doodle (Heart) -->
+          <svg class="absolute -top-10 -right-10 text-[#ec4899] w-14 h-14 animate-floating z-10" style="animation-delay: 0.5s" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <!-- Star accent doodle -->
+          <svg class="absolute -bottom-8 -left-12 text-yellow-400 w-16 h-16 animate-floating z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold italic">
+          <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>
+        </h1>
+        <div class="mt-8 flex gap-2 justify-center">
+          <div class="w-2 h-2 bg-black rounded-full animate-bounce" style="animation-delay: 0s"></div>
+          <div class="w-2 h-2 bg-black rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+          <div class="w-2 h-2 bg-black rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script to hide splash screen -->
+    <script>
+      window.addEventListener('load', () => {
+        const splash = document.getElementById('splash-screen');
+        setTimeout(() => {
+          splash.classList.add('opacity-0');
+          splash.classList.add('pointer-events-none');
+          setTimeout(() => {
+            splash.style.display = 'none';
+          }, 700);
+        }, 1200); // Show for at least 1.2 seconds
+      });
+    </script>
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 bg-white border-b-4 border-black px-4 py-3 flex items-center justify-between max-w-[100vw] overflow-x-hidden">
+      <div class="flex items-center gap-3 cursor-pointer relative group pr-7" onclick="navigateTo('home')">
+        <!-- Decoration Doodle (Now visible by default for mobile) -->
+        <svg class="absolute -top-2 -left-2 text-yellow-400 w-8 h-8 animate-doodle pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg class="absolute -bottom-1 right-0 text-pink-400 w-6 h-6 animate-doodle-slow pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        
+        <div class="relative w-10 h-10">
+          <div class="absolute inset-0 bg-[#ec4899] border-2 border-black rounded-lg rotate-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
+          <div class="absolute inset-0 bg-[#3b82f6] border-2 border-black rounded-lg translate-x-1 translate-y-1 flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <span class="text-white font-bold text-lg">HV</span>
+          </div>
+        </div>
+        <h1 class="text-xl font-bold tracking-tight">
+          <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>
+        </h1>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      <!-- Hero Banner (Single Image, No Slider) -->
+      <section id="hero-slider" class="mb-4 relative overflow-hidden sketch-border aspect-[400/147] w-full">
+        <div class="h-full relative">
+          <!-- Decoration Doodles in Hero (Increased Opacity) -->
+          <svg class="absolute top-4 right-4 text-white/60 w-12 h-12 animate-doodle pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg class="absolute bottom-4 left-4 text-white/60 w-10 h-10 animate-doodle-slow pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          
+          <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="/assets/images/hero-banner.webm" type="video/webm">
+          </video>
+          <div class="absolute inset-0 flex flex-col justify-center px-8 md:px-16 bg-gradient-to-r from-black/40 to-transparent">
+            <h2 class="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+              <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>
+            </h2>
+            <p class="text-xl md:text-2xl font-bold text-white max-w-lg drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+              Streaming Anime Subtitle Indonesia Terlengkap dan Terupdate Setiap Hari!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Minimalist Stats -->
+      <div id="site-stats" class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs md:text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-6">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-[#3b82f6] rounded-full"></span>
+          <span>10K+ Tayangan</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-[#ec4899] rounded-full"></span>
+          <span>24/7 Update</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-orange-500 rounded-full"></span>
+          <span>100% Gratis</span>
+        </div>
+      </div>
+
+      <!-- Search & Hamburger (Hidden on Donation) -->
+      <div id="search-container" class="flex items-center gap-3 mb-8">
+        <div class="flex-1 flex items-stretch">
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Cari anime..."
+            class="flex-1 px-4 py-3 bg-white border-4 border-black border-r-0 rounded-l-xl font-bold focus:outline-none shadow-[0px_4px_0px_0px_rgba(0,0,0,1)]"
+          />
+          <button id="search-button" class="px-5 bg-[#3b82f6] text-white border-4 border-black rounded-r-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+        </div>
+        <button onclick="toggleSidebar()" class="p-3 bg-white border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>
+
+      <!-- Page Content Containers -->
+      <div id="page-home" class="page-container">
+        <div class="flex items-center gap-3 mb-6 relative group">
+          <div class="p-2 bg-[#ec4899] border-2 border-black rounded-lg -rotate-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </div>
+          <h2 class="text-2xl font-bold">Anime Sedang Tayang</h2>
+          <!-- Scribble line under title (Always visible now) -->
+          <svg class="absolute -bottom-2 left-0 w-48 h-2 text-[#3b82f6] opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 200 10" preserveAspectRatio="none">
+            <path d="M0,5 C50,0 150,10 200,5" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div id="home-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6"></div>
+        <div id="home-pagination" class="mt-10 flex justify-center gap-4"></div>
+
+        <!-- Section 3: Quote Gelembung Chat -->
+        <div class="mt-10 mb-10 px-4">
+          <div class="max-w-2xl mx-auto relative group">
+            
+            <!-- Main Bubble -->
+            <div class="relative bg-white p-6 md:p-12 border-4 border-black rounded-[2rem] text-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-center min-h-[180px] md:min-h-[250px]">
+              
+              <!-- Speech Bubble Tail (Sketchy Style) -->
+              <div class="absolute -bottom-8 left-10 md:left-12 w-10 h-10 md:w-12 md:h-12 overflow-hidden">
+                <div class="w-full h-full bg-white border-4 border-black rotate-45 -translate-y-1/2 translate-x-0"></div>
+              </div>
+
+              <!-- Tail Mask (to clear border between tail and bubble) -->
+              <div class="absolute bottom-0 left-[2.8rem] md:left-[3.2rem] w-6 md:w-8 h-[4px] bg-white z-10"></div>
+              
+              <div id="quote-container" class="relative z-20 space-y-3 md:space-y-4 transition-all duration-500 opacity-100">
+                <div class="flex justify-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-200"></div>
+                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-200"></div>
+                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-200"></div>
+                </div>
+                
+                <p id="anime-quote" class="text-lg md:text-2xl font-black leading-tight text-gray-900 px-2 md:px-4">
+                   Loading quote...
+                </p>
+                
+                <div class="pt-2 md:pt-4">
+                  <span id="quote-author" class="inline-block px-3 py-0.5 md:px-4 md:py-1 bg-[#3b82f6] text-white border-2 border-black rounded-full text-xs md:text-sm font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">— Loading...</span>
+                </div>
+              </div>
+
+              <!-- Slider Navigation -->
+              <div class="absolute inset-y-0 -left-6 md:-left-12 flex items-center z-30">
+                <button onclick="prevQuote()" class="w-10 h-10 md:w-12 md:h-12 bg-white border-4 border-black rounded-full flex items-center justify-center hover:bg-[#ec4899] hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+              </div>
+              <div class="absolute inset-y-0 -right-6 md:-right-12 flex items-center z-30">
+                <button onclick="nextQuote()" class="w-10 h-10 md:w-12 md:h-12 bg-white border-4 border-black rounded-full flex items-center justify-center hover:bg-[#3b82f6] hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+
+              <!-- Extra Doodles -->
+              <svg class="absolute -top-6 -right-6 text-yellow-400 w-12 h-12 rotate-12 animate-doodle opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-genre" class="page-container hidden">
+        <div class="flex items-center gap-3 mb-8 relative group">
+          <div class="p-2 bg-[#ec4899] border-2 border-black rounded-lg rotate-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+          </div>
+          <h2 class="text-3xl font-bold">Daftar Genre</h2>
+          <svg class="absolute -bottom-2 left-0 w-40 h-2 text-[#ec4899] opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 200 10" preserveAspectRatio="none">
+            <path d="M0,5 C50,10 150,0 200,5" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        
+        <!-- Grid Pilihan Genre -->
+        <div class="bg-white border-4 border-black p-6 sketch-border mb-10 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <p class="font-bold text-xs text-gray-400 uppercase tracking-widest mb-4">Pilih Kategori Genre Anime:</p>
+          <div id="genres-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <!-- Will be populated dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Hasil Anime Berdasarkan Genre -->
+        <div id="genre-results-container" class="hidden">
+          <div class="flex items-center justify-between gap-3 mb-6">
+            <div class="flex items-center gap-3">
+              <h3 id="genre-results-title" class="text-xl font-bold">Hasil Genre</h3>
+              <div class="border-b-2 border-dashed border-gray-300 w-16 md:w-32"></div>
+            </div>
+            <button onclick="window.scrollToGenreTop()" class="text-xs font-bold text-gray-500 hover:text-black flex items-center gap-1 underline">
+              Kembali ke Pilihan Genre ↑
+            </button>
+          </div>
+          <div id="genre-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6"></div>
+          <div id="genre-pagination" class="mt-10 flex justify-center gap-4"></div>
+        </div>
+      </div>
+
+      <div id="page-schedule" class="page-container hidden">
+        <div class="flex items-center gap-3 mb-8 relative group">
+          <div class="p-2 bg-yellow-400 border-2 border-black rounded-lg rotate-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          </div>
+          <h2 class="text-3xl font-bold">Jadwal Rilis Anime</h2>
+          <svg class="absolute -bottom-2 left-0 w-44 h-2 text-yellow-400 opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 200 10" preserveAspectRatio="none">
+            <path d="M0,5 C50,10 150,0 200,5" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div id="schedule-grid" class="grid grid-cols-1 gap-6"></div>
+      </div>
+
+      <div id="page-donation" class="page-container hidden">
+        <div class="max-w-md mx-auto bg-white sketch-border p-8 text-center border-[#ec4899] border-8">
+          <div class="w-32 h-32 mx-auto mb-6 relative animate-floating">
+            <!-- Tilted background square -->
+            <div class="absolute inset-0 bg-[#3b82f6] border-4 border-black rounded-2xl rotate-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"></div>
+            <!-- Straight image container -->
+            <div class="absolute inset-0 border-4 border-black rounded-2xl overflow-hidden bg-white">
+              <img src="/assets/images/admin-profile.jpg" alt="Admin" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <h3 class="text-3xl font-bold mb-2">
+            <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>
+          </h3>
+          <p class="text-lg text-gray-600 font-bold mb-8">Kenapa harus donasi? Pake nanya</p>
+          <button onclick="window.open('https://saweria.co/hendraganz335', '_blank')" class="w-2/3 py-3 bg-yellow-400 border-4 border-black rounded-xl font-bold text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] hover:bg-yellow-300 transition-colors mb-8">
+            Donasi
+          </button>
+
+          <!-- Wall of Fame (Simulasi) -->
+          <div class="mt-4 mb-4 text-left relative">
+            <!-- Decorative Tape Effect -->
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#3b82f6]/30 border-2 border-dashed border-black/20 -rotate-2 z-10"></div>
+            
+            <div class="bg-[#fffef0] border-4 border-black p-6 rounded-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative">
+              <div class="flex items-center gap-2 mb-4 border-b-2 border-dashed border-black/10 pb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-orange-500"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                <h3 class="font-hand font-bold text-xl uppercase tracking-tighter">Wall of Fame 🏆</h3>
+              </div>
+              
+              <ul class="space-y-4">
+                <!-- Top Donor Card -->
+                <li class="relative overflow-hidden bg-gradient-to-r from-yellow-50 to-white p-3 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <!-- Shine Effect Overlay -->
+                  <div class="absolute inset-0 pointer-events-none">
+                    <div class="w-full h-full bg-white/30 animate-shine"></div>
+                  </div>
+                  
+                  <div class="flex justify-between items-center mb-1 relative z-10">
+                    <div class="flex items-center gap-2">
+                      <div class="flex items-center justify-center w-6 h-6 bg-yellow-400 border-2 border-black rounded shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-black"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z"/></svg>
+                      </div>
+                      <span class="font-bold text-lg">aku siapa hayoh</span>
+                    </div>
+                    <span class="font-hand font-bold text-green-600 text-lg">Rp 52.000</span>
+                  </div>
+                  <p class="text-[10px] text-gray-600 italic mt-1 font-bold relative z-10">"semangat kamu henhen"</p>
+                </li>
+                <li class="p-3 border-b border-dashed border-black/10">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      Lanzz
+                    </span>
+                    <span class="font-bold text-gray-500">Rp 20.000</span>
+                  </div>
+                  <p class="text-[10px] text-gray-500 italic mt-1">"tuh 20k mana fitur nobarnya? canda min:v"</p>
+                </li>
+                <li class="p-3 border-b border-dashed border-black/10">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      olip suka mie ayam
+                    </span>
+                    <span class="font-bold text-gray-500">Rp 18.000</span>
+                  </div>
+                  <p class="text-[10px] text-gray-500 italic mt-1">"lucu ih tampilannyaa, webnya imut"</p>
+                </li>
+                <li class="p-3">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      Penganguran pro
+                    </span>
+                    <span class="font-bold text-gray-500">Rp 8.000</span>
+                  </div>
+                  <p class="text-[10px] text-gray-500 italic mt-1">"adakah loker"</p>
+                </li>
+              </ul>
+              
+              <p class="mt-4 text-[10px] text-center font-bold text-gray-400 italic">Daftar donatur dengan kontribusi tertinggi bulan ini.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Description Box Moved Outside -->
+        <div class="max-w-md mx-auto sketch-border p-6 text-left bg-white border-4 border-black mt-10 mb-12 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <ul class="space-y-4 font-bold text-sm md:text-base text-gray-700 list-disc pl-5">
+            <li>Website ini masih dalam tahap pengembangan, sehingga masih memungkinkan terjadinya bug atau kendala teknis.</li>
+            <li>Kami mengucapkan terima kasih atas dukungan yang telah diberikan, khususnya kepada para donatur.</li>
+            <li>Apabila terdapat kritik, saran, maupun permintaan, silakan menghubungi kami melalui kontak yang tersedia.</li>
+          </ul>
+          
+          <!-- Social Media Icons -->
+          <div class="mt-6 flex justify-center gap-4">
+            <a href="https://sketchy-portfolio-three.vercel.app" target="_blank" class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-[#3b82f6]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/></svg>
+            </a>
+            <a href="https://www.facebook.com/share/1agPrMebUB/" target="_blank" class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-[#1877F2]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/hen.draprtm?igsh=MTc3anVjYzdndzd6bg==" target="_blank" class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-[#E4405F]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+            <a href="https://www.tiktok.com/@yam1suk6hiro?_r=1&_t=ZS-95ulL8565o5" target="_blank" class="p-2 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all text-black">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-list" class="page-container hidden">
+        <div class="relative inline-block mb-10 group">
+          <h2 id="list-title" class="text-2xl font-bold p-3 bg-white border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative z-10">Daftar Anime</h2>
+          <!-- Doodles for Category List Pages -->
+          <!-- Star 1 -->
+          <svg class="absolute -top-5 -right-5 text-yellow-400 w-10 h-10 animate-doodle opacity-90 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <!-- Star 2 -->
+          <svg class="absolute -bottom-4 -left-6 text-blue-400 w-8 h-8 animate-doodle-slow opacity-80 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <!-- Heart -->
+          <svg id="list-header-heart" class="absolute -top-6 -left-4 text-pink-400 w-7 h-7 animate-doodle opacity-90 transition-opacity" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <!-- Star 3 (Small) -->
+          <svg class="absolute -bottom-2 -right-6 text-green-400 w-5 h-5 animate-doodle opacity-70 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div id="list-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6"></div>
+        <div id="list-pagination" class="mt-10 flex justify-center gap-4"></div>
+      </div>
+
+      <div id="page-detail" class="page-container hidden">
+        <div id="detail-content" class="space-y-8 pb-12">
+          <!-- Will be filled by JS -->
+        </div>
+      </div>
+
+      <div id="page-streaming" class="page-container hidden">
+        <div id="streaming-content" class="space-y-6 pb-12">
+          <!-- Will be filled by JS -->
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer id="main-footer" class="mt-20 pb-10 border-t-4 border-black pt-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div class="relative">
+            <h3 class="text-2xl font-bold">
+              <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>
+            </h3>
+            <p class="text-sm font-bold text-gray-500 italic">Streaming anime sub Indo</p>
+            <!-- Small Doodle -->
+            <svg class="absolute -top-4 -right-8 text-yellow-400 w-6 h-6 animate-doodle opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          
+          <div class="flex flex-col items-center md:items-end gap-2">
+            <div class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-[#ec4899]"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+              <span class="text-sm font-bold">MIT License &copy; 2026 Henkaramazov</span>
+            </div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Built with passion and zero ads</p>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden" onclick="toggleSidebar()"></div>
+    <aside id="sidebar" class="fixed top-0 right-0 h-full w-80 bg-white z-[60] border-l-4 border-black sidebar-transition translate-x-full flex flex-col shadow-[-10px_0px_0px_0px_rgba(0,0,0,0.1)]">
+      <!-- Header Fixed -->
+      <div class="p-6 border-b-4 border-black flex justify-between items-center bg-white shrink-0">
+        <h2 class="text-2xl font-bold underline decoration-4 decoration-[#3b82f6] underline-offset-4">Menu Utama</h2>
+        <button onclick="toggleSidebar()" class="hover:rotate-90 transition-transform duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      
+      <!-- Scrollable Content -->
+      <nav class="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <!-- Kategori Section -->
+        <div class="space-y-3 mb-8">
+          <p class="font-bold text-xs text-gray-400 uppercase tracking-widest mb-3">Pilihan Kategori</p>
+          <button onclick="fetchListPage('popular', 'Anime Populer')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-orange-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.434-4.5 1.5-6 2.156 1.617 2.858 4.084 1.39 6.121a2.5 2.5 0 1 1-3.39 3.379ZM12 12c2.21 0 4 2.13 4 4.75C16 19.1 14.21 21 12 21s-4-1.9-4-4.25c0-2.62 1.79-4.75 4-4.75Z"/></svg>
+            <span class="relative z-10">Anime Populer</span>
+          </button>
+          <button onclick="fetchListPage('movies', 'Anime Movie')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M17 3v18"/><path d="M3 7h4"/><path d="M3 12h18"/><path d="M3 17h4"/><path d="M17 12h4"/><path d="M17 17h4"/><path d="M17 7h4"/></svg>
+            <span class="relative z-10">Anime Movie</span>
+          </button>
+          <button onclick="fetchListPage('ongoing', 'Anime Sedang Tayang')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-[#ec4899] hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+            <span class="relative z-10">Anime Ongoing</span>
+          </button>
+          <button onclick="fetchListPage('completed', 'Anime Tamat')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-[#3b82f6] hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span class="relative z-10">Anime Completed</span>
+          </button>
+          <button onclick="navigateTo('schedule')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-emerald-400 hover:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            <span class="relative z-10">Jadwal Rilis Anime</span>
+          </button>
+          <button onclick="navigateTo('genre')" class="w-full text-left p-4 border-2 border-black rounded-xl font-bold hover:bg-pink-400 hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative group overflow-hidden transition-all flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="relative z-10"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            <span class="relative z-10">Daftar Genre</span>
+          </button>
+        </div>
+
+        <!-- History Section -->
+        <div class="space-y-3 mb-10">
+          <div class="flex items-center justify-between mb-3">
+            <p class="font-bold text-xs text-gray-400 uppercase tracking-widest">Riwayat Tontonan</p>
+            <button onclick="clearHistory()" class="text-[10px] bg-red-100 hover:bg-red-500 hover:text-white px-2 py-0.5 border border-black rounded transition-colors font-bold">Hapus</button>
+          </div>
+          <div id="history-container" class="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+            <p class="text-xs text-gray-400 italic font-bold text-center py-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl">Belum ada riwayat...</p>
+          </div>
+        </div>
+
+        <!-- Tentang Kami Section (Accordion/Collapse) -->
+        <div class="pt-6 border-t-2 border-dashed border-gray-300 space-y-2 pb-20">
+          <p class="font-bold text-xs text-gray-400 uppercase tracking-widest mb-4">Informasi Situs</p>
+          
+          <!-- HenVeronime -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-hen')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-[#3b82f6] transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                Tentang HenVeronime
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#3b82f6] transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-hen-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-hen" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4">
+                <p class="text-sm text-gray-700 leading-relaxed text-justify font-bold italic border-l-4 border-[#3b82f6] pl-3">
+                  Selamat datang di <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>! ✨<br><br>
+                  Kami adalah platform streaming anime yang lahir dari kecintaan terhadap dunia animasi Jepang dan estetika desain *Modern Sketch*. Dikembangkan oleh <span class="text-[#3b82f6]">Henkaramazov</span>, situs ini dirancang untuk memberikan pengalaman menonton yang tidak hanya fungsional, tetapi juga memanjakan mata melalui visual yang unik dan penuh karakter.<br><br>
+                  Visi kami adalah menciptakan sebuah "perpustakaan digital" anime yang bersih, mudah diakses, dan bebas dari gangguan iklan yang mengganggu (seperti iklan judi atau popup tak terduga). Kami percaya bahwa kenyamanan penonton adalah prioritas utama.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fitur -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-fitur')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-[#ec4899] transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                Fitur Unggulan
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ec4899] transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-fitur-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-fitur" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4">
+                <p class="text-sm text-gray-700 leading-relaxed text-justify font-bold italic border-l-4 border-[#ec4899] pl-3">
+                  Saat ini, <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> menyediakan beberapa fitur utama yang mendukung pengalaman menonton anime secara maksimal:<br><br>
+                  • <span class="text-[#3b82f6]">Daftar Genre Lengkap</span>: Jelajahi anime berdasarkan puluhan kategori genre populer secara instan.<br>
+                  • <span class="text-[#3b82f6]">Jadwal Rilis Anime</span>: Jadwal tayang update harian dari Senin sampai Minggu secara real-time.<br>
+                  • <span class="text-[#3b82f6]">Unduhan Episode (Download)</span>: Link download berbagai kualitas (360p, 480p, 720p, 1080p) untuk ditonton offline.<br>
+                  • <span class="text-[#3b82f6]">Sistem Pencarian Cepat</span>: Temukan anime favorit Anda dalam hitungan detik.<br>
+                  • <span class="text-[#3b82f6]">Riwayat Tontonan (History)</span>: Melacak episode terakhir yang Anda tonton secara otomatis.<br>
+                  • <span class="text-[#3b82f6]">Kategori Terstruktur</span>: Menjelajahi anime Populer, Movie, Ongoing, dan Completed dengan mudah.<br>
+                  • <span class="text-[#3b82f6]">Caching Pintar</span>: Akses data lebih cepat berkat teknologi caching di sisi server dan client.<br>
+                  • <span class="text-[#3b82f6]">Maskot Kucing (HenCat)</span>: Kami punya kucing lucu yang bertugas menjaga kestabilan server dan memberikan 'luck' tambahan bagi para wibu! 🐾
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Segera Hadir -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-segera')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-orange-500 transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                Rencana Pengembangan
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-segera-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-segera" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4">
+                <p class="text-sm text-gray-700 leading-relaxed text-justify font-bold italic border-l-4 border-orange-500 pl-3">
+                  Kami berkomitmen untuk terus berinovasi. Fokus pengembangan kami selanjutnya meliputi:<br><br>
+                  • <span class="text-[#3b82f6]">Sistem Akun</span>: Fitur simpan favorit dan personalisasi profil.<br>
+                  • <span class="text-[#3b82f6]">Nonton Bersama (Room)</span>: Streaming bareng teman dalam satu ruang chat.<br>
+                  • <span class="text-[#3b82f6]">Komentar Episode</span>: Berdiskusi dan berbagi kesan menarik langsung di setiap episode.<br><br>
+                  Setiap fitur akan dirilis secara bertahap untuk memastikan kualitas terbaik bagi pengguna.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Cara Donasi -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-donasi')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-yellow-600 transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                Cara Donasi
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-600 transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-donasi-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-donasi" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4">
+                <p class="text-sm text-gray-700 leading-relaxed text-justify font-bold italic border-l-4 border-yellow-500 pl-3">
+                  Dukungan Anda sangat berarti bagi keberlangsungan server <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>. Berikut langkah-langkah untuk melakukan donasi:<br><br>
+                  1. Buka menu Donasi pada navigasi bawah.<br>
+                  2. Klik tombol <span class="bg-yellow-400 text-black px-2 py-0.5 border-2 border-black rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[10px] uppercase inline-block mx-1">Donasi</span> yang tersedia pada halaman tersebut.<br>
+                  3. Anda akan diarahkan ke halaman donasi untuk mengikuti petunjuk yang tersedia.<br><br>
+                  Setiap donasi yang diberikan akan digunakan sepenuhnya untuk biaya pemeliharaan infrastruktur agar situs tetap berjalan dengan lancar dan bebas iklan.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-faq')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-green-600 transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                FAQ
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-green-600 transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-faq-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-faq" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4 space-y-5">
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">1. Apakah <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> gratis?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Ya, <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> dapat diakses secara gratis tanpa biaya.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">2. Apakah terdapat iklan di dalam situs?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Tidak, <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> tidak menampilkan iklan dalam bentuk apa pun.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">3. Apa tujuan utama <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Memberikan pengalaman menonton anime yang nyaman, sederhana, dan berkualitas.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">4. Siapa pengembang <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span>?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic"><span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> dikembangkan oleh <span class="text-[#3b82f6]">Henkaramazov</span>. Alias Hendra ganteng eaa kiw kiw</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">5. Apakah konten diperbarui secara berkala?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Ya, konten diperbarui secara berkala untuk menjaga konsistensi layanan.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">6. Apakah semua fitur langsung tersedia?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Tidak, beberapa fitur akan dirilis secara bertahap.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">7. Mengapa situs tidak dapat diakses atau mengalami gangguan?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Gangguan dapat terjadi karena pemeliharaan server atau peningkatan sistem yang sedang berlangsung.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">8. Mengapa video tidak dapat diputar?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Hal tersebut dapat disebabkan oleh koneksi internet pengguna atau gangguan sementara pada server.</p>
+                </div>
+                <div class="border-l-4 border-green-600 pl-3">
+                  <p class="text-sm font-bold text-gray-800">9. Apa yang harus dilakukan jika terjadi error pada situs?</p>
+                  <p class="text-xs text-gray-600 mt-1 font-bold italic">Silakan mencoba memuat ulang halaman atau mengakses kembali beberapa saat kemudian.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hak Cipta & Disclaimer -->
+          <div class="mb-2">
+            <button onclick="toggleAccordion('acc-legal')" class="w-full flex items-center justify-between text-left font-bold text-lg hover:text-red-600 transition-colors group py-3 border-b border-gray-100">
+              <span class="relative">
+                Hak Cipta & Disclaimer
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
+              </span>
+              <svg id="acc-legal-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="acc-legal" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-gray-50/50 rounded-b-lg">
+              <div class="p-4">
+                <p class="text-[11px] text-gray-700 leading-relaxed text-justify font-bold italic border-l-4 border-red-600 pl-3">
+                  <span class="text-red-600 uppercase">Disclaimer:</span><br>
+                  <span class="text-[#3b82f6]">Hen</span><span class="text-[#ec4899]">Veronime</span> tidak menyimpan file video apa pun di server kami. Semua konten disediakan oleh pihak ketiga yang tidak berafiliasi. <br><br>
+                  Kami sangat menghargai hak kekayaan intelektual para kreator asli dan studio animasi di Jepang. Seluruh hak cipta anime adalah milik masing-masing pemilik sahnya. Penggunaan situs ini hanya bertujuan sebagai media berbagi antar komunitas pecinta anime dan tidak bermaksud untuk melanggar hak cipta apa pun.<br><br>
+                  Jika Anda adalah pemegang hak cipta dan ingin konten Anda dihapus, silakan hubungi admin melalui kontak yang tersedia di halaman donasi. Kami akan segera merespons permintaan Anda.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-sm bg-white border-4 border-black rounded-2xl p-2 flex items-center justify-around shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+      <button onclick="navigateTo('home')" class="flex flex-col items-center gap-1 px-4 py-2 rounded-xl hover:bg-[#3b82f6] hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="text-xs font-bold font-hand">Beranda</span>
+      </button>
+      <button onclick="navigateTo('genre')" class="flex flex-col items-center gap-1 px-4 py-2 rounded-xl hover:bg-[#ec4899] hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span class="text-xs font-bold font-hand">Genre</span>
+      </button>
+      <button onclick="navigateTo('donation')" class="flex flex-col items-center gap-1 px-4 py-2 rounded-xl hover:bg-orange-500 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <span class="text-xs font-bold font-hand">Donasi</span>
+      </button>
+    </nav>
+
+    <!-- Interactive Mascot: Si Meow -->
+    <div id="si-meow" class="fixed bottom-24 right-5 z-50 flex flex-col items-end pointer-events-none md:bottom-28 md:right-10 transition-transform duration-300 ease-out translate-x-0 translate-y-0" style="touch-action: none;">
+      <!-- Speech Bubble -->
+      <div id="meow-bubble" class="hidden opacity-0 pointer-events-auto bg-white border-4 border-black p-3 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-3 max-w-[180px] relative">
+        <p id="meow-text" class="text-xs font-bold leading-tight"></p>
+        <!-- Tail of bubble -->
+        <div class="absolute -bottom-[10px] right-6 w-4 h-4 bg-white border-r-4 border-b-4 border-black rotate-45"></div>
+        <div class="absolute bottom-0 right-6 w-5 h-[4px] bg-white z-10"></div>
+      </div>
+      
+      <!-- Mascot Content -->
+      <div id="mascot-drag-handle" class="mascot-container pointer-events-auto cursor-grab active:cursor-grabbing" onclick="meowTalk()">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white bg-[#ec4899] border-4 border-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#db2777] transition-colors">
+          <!-- Head -->
+          <circle cx="12" cy="13" r="7" fill="currentColor" fill-opacity="0.2" />
+          <!-- Ears -->
+          <path d="M7 9l-2-4 3 1M17 9l2-4-3 1" fill="white" />
+          <!-- Eyes -->
+          <circle cx="9" cy="13" r="1" fill="white"/>
+          <circle cx="15" cy="13" r="1" fill="white"/>
+          <!-- Nose/Mouth -->
+          <path d="M12 15l-1 1 1 1 1-1-1-1z" fill="white"/>
+          <!-- Whiskers -->
+          <path d="M18 13h2M18 14.5l1.5 0.5M6 13H4M6 14.5l-1.5 0.5" stroke="white" />
+          <!-- Tail -->
+          <path d="M18 18c1.5 0 2.5-1 2.5-2.5S19 13 17 13" class="mascot-tail" stroke="white" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden" onclick="closeQrModal()">
+      <div id="qr-modal-content" class="bg-white border-8 border-black rounded-3xl p-6 max-w-sm w-full relative" onclick="event.stopPropagation()">
+        <button onclick="closeQrModal()" class="absolute -top-6 -right-6 w-12 h-12 bg-[#ec4899] border-4 border-black rounded-full flex items-center justify-center text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="text-center mb-6">
+          <h3 class="text-2xl font-bold">Scan QRIS</h3>
+          <p class="font-bold text-gray-500">Terima kasih atas dukungannya!</p>
+        </div>
+        <div class="aspect-square bg-gray-100 border-4 border-black rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
+          <img src="/assets/images/qris-code.jpg" alt="QRIS" class="w-full h-full p-4">
+        </div>
+        <button onclick="closeQrModal()" class="w-full py-4 bg-[#3b82f6] text-white border-4 border-black rounded-xl font-bold text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Selesai</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
+
