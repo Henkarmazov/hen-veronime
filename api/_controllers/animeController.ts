@@ -2,8 +2,19 @@ import axios from 'axios';
 import { Request, Response } from 'express';
 import NodeCache from 'node-cache';
 
-const envUrl = process.env.ANIME_API_URL;
-const TARGET_BASE_URL = (envUrl && !envUrl.includes('animkuapi') ? envUrl : 'https://www.sankavollerei.web.id').replace(/\/+$/, '');
+const getAnimeApiBaseUrl = (): string => {
+  const envUrl = process.env.ANIME_API_URL?.trim();
+
+  if (!envUrl) {
+    throw new Error(
+      'ANIME_API_URL belum diatur. Tambahkan ANIME_API_URL=https://www.sankavollerei.web.id ke file .env Anda.'
+    );
+  }
+
+  return envUrl.replace(/\/+$/, '');
+};
+
+const TARGET_BASE_URL = getAnimeApiBaseUrl();
 const cache = new NodeCache({ stdTTL: 1800, checkperiod: 600 }); // Cache for 30 minutes
 
 const apiClient = axios.create({
@@ -216,7 +227,6 @@ export const getWatchData = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Episode tidak ditemukan.' });
     }
 
-    // Attempt to enrich with parent anime details if available in cache or fetch
     let parentDetail: any = null;
     if (data.animeId) {
       const parentCacheKey = `detail_v2_${data.animeId}`;
@@ -242,7 +252,6 @@ export const getWatchData = async (req: Request, res: Response) => {
 
     let iframe = data.defaultStreamingUrl || '';
 
-    // If defaultStreamingUrl is missing, try to resolve first available server
     if (!iframe && data.server?.qualities?.length > 0) {
       const firstQuality = data.server.qualities[0];
       const firstServer = firstQuality?.serverList?.[0];
@@ -256,7 +265,6 @@ export const getWatchData = async (req: Request, res: Response) => {
       }
     }
 
-    // Build episodes list for quick episode navigation
     const rawEpList = data.info?.episodeList || parentDetail?.episodeList || [];
     const episodes = rawEpList.map((ep: any) => {
       const epSlug = ep.episodeId || cleanSlug(ep.href || '');
@@ -421,7 +429,7 @@ export const getSearchData = async (req: Request, res: Response) => {
       results
     };
 
-    cache.set(cacheKey, result, 900); // 15 mins
+    cache.set(cacheKey, result, 900);
     return res.json(result);
   } catch (error: any) {
     console.error('[API ERROR] Search:', error.message);
@@ -658,7 +666,6 @@ export const getFilterData = async (req: Request, res: Response) => {
   const page = (req.query.page as string) || '1';
   const pageNum = parseInt(page) || 1;
 
-  // Extract genre parameter (could be genre[], genre query, or url param)
   let genreParam = req.params.slug || req.query.genre || req.query['genre[]'];
   if (Array.isArray(genreParam)) {
     genreParam = genreParam[0];
@@ -752,7 +759,7 @@ export const getScheduleData = async (req: Request, res: Response) => {
       data
     };
 
-    cache.set(cacheKey, result, 7200); // 2 hours
+    cache.set(cacheKey, result, 7200);
     return res.json(result);
   } catch (error: any) {
     console.error('[API ERROR] Schedule:', error.message);
@@ -785,7 +792,7 @@ export const getGenresList = async (req: Request, res: Response) => {
       data
     };
 
-    cache.set(cacheKey, result, 86400); // 24 hours
+    cache.set(cacheKey, result, 86400);
     return res.json(result);
   } catch (error: any) {
     console.error('[API ERROR] Genres:', error.message);
@@ -818,7 +825,7 @@ export const getUnlimitedData = async (req: Request, res: Response) => {
       data
     };
 
-    cache.set(cacheKey, result, 86400); // 24 hours
+    cache.set(cacheKey, result, 86400);
     return res.json(result);
   } catch (error: any) {
     console.error('[API ERROR] Unlimited:', error.message);
