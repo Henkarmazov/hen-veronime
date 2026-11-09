@@ -121,8 +121,7 @@ ANIME_API_URL=
 
    Centang **Production**, **Preview**, dan **Development**.
 5. Klik **Deploy**. Tunggu sampai selesai, lalu buka domain `.vercel.app` yang diberikan.
-6. Cek halaman utama muncul dan daftar anime terisi. Buka `/api/home` untuk memastikan hasilnya **halaman 404**, bukan JSON.
-
+   
 > [!TIP]
 > - Mengubah nilai Environment Variable baru berlaku setelah **Redeploy**.
 > - Kalau halaman menampilkan "Layanan belum dikonfigurasi", artinya `ANIME_API_URL` belum diisi atau belum di-redeploy.
