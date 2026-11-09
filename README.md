@@ -10,7 +10,7 @@
 
 ### 📋 Daftar Isi
 - [🐳 Developer](#-developer)
-- [🎞 Cara Kerja Website](#-cara-kerja-website)
+- [📝 Cara Kerja Website](#-cara-kerja-website)
 - [🌊 Total Fitur](#-total-fitur)
 - [📂 Struktur Project](#-struktur-project)
 - [⚙️ Konfigurasi](#-konfigurasi)
