@@ -1,4 +1,4 @@
-# 🎎 HenVeronime - Website Streaming Anime
+# 🎎 HenVeronime - Streaming Anime
 
 [![Logo](https://cdn.zass.in/LQmWLrK10c.jpg)](#-henveronime---website-streaming-anime)
 
